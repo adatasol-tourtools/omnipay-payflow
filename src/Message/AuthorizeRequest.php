@@ -53,6 +53,12 @@ class AuthorizeRequest extends AbstractRequest
     protected $liveEndpoint = 'https://payflowpro.paypal.com';
     protected $testEndpoint = 'https://pilot-payflowpro.paypal.com';
     protected $action = 'A';
+    
+     public function initialize(array $parameters = array())
+    {
+        parent::initialize(array_merge(['tender'=>'C'], $parameters));
+        return $this;
+    }
 
     /**
      * Get the username.
@@ -214,6 +220,42 @@ class AuthorizeRequest extends AbstractRequest
         return $this->setParameter('origid', $value);
     }
 
+    public function getTender()
+    {
+        return $this->getParameter('tender');
+    }
+
+    public function setTender($value)
+    {
+        return $this->setParameter('tender', $value);
+    }
+    
+    
+    /**
+     * Get the check.
+     *
+     * @return Check
+     */
+    public function getCheck()
+    {
+        return $this->getParameter('check');
+    }
+
+    /**
+     * Sets the check.
+     *
+     * @param Check $value
+     * @return $this
+     */
+    public function setCheck($value)
+    {
+        if ($value && !$value instanceof Check) {
+            $value = new Check($value);
+        }
+
+        return $this->setParameter('check', $value);
+    }
+
     protected function getBaseData()
     {
         $data = array();
@@ -242,7 +284,7 @@ class AuthorizeRequest extends AbstractRequest
             if ($this->getCard()) {
                 $data['CVV2'] = $this->getCard()->getCvv();
             }
-        } else {
+        } elseif($this->getTender()== 'C') {
             $this->validate('card');
             $this->getCard()->validate();
 
@@ -256,17 +298,27 @@ class AuthorizeRequest extends AbstractRequest
             $data['BILLTOSTATE'] = $this->getCard()->getState();
             $data['BILLTOZIP'] = $this->getCard()->getPostcode();
             $data['BILLTOCOUNTRY'] = $this->getCard()->getCountry();
+        } else {
+            $this->validate('check');
+            $this->getCheck()->validate();
+            
+            $data['ACCT'] = $this->getCheck()->getNumber();
+            $data['ABA'] = $this->getCheck()->getRoutingNumber();
+            $data['ACCTTYPE'] = $this->getCheck()->getAccountType();
+            $data['FIRSTNAME'] = $this->getCheck()->getName();          
         }
 
-        $data['TENDER'] = 'C';
+        $data['TENDER'] = $this->getTender();
         $data['AMT'] = $this->getAmount();
         $data['CURRENCY'] = $this->getCurrency();
         $data['ORDERID'] = $this->getOrderId();
         $data['PONUM'] = $this->getPoNum();
-
+        
         if ($this->getCard()) {
             $data['BILLTOEMAIL'] = $this->getCard()->getEmail();
             $data['BILLTOPHONENUM'] = $this->getCard()->getBillingPhone();
+        }elseif($this->getCheck()){
+            $data['AUTHTYPE'] = 'WEB';
         }
 
         $items = $this->getItems();

@@ -1,5 +1,5 @@
 {
-    "name": "omnipay/payflow",
+    "name": "adatasol-tourtools/omnipay-payflow",
     "type": "library",
     "description": "Payflow driver for the Omnipay payment processing library",
     "keywords": [
@@ -23,7 +23,9 @@
         }
     ],
     "autoload": {
-        "psr-4": { "Omnipay\\Payflow\\" : "src/" }
+        "psr-4": {
+            "Omnipay\\Payflow\\": "src/"
+        }
     },
     "require": {
         "league/omnipay": "^3.0",
