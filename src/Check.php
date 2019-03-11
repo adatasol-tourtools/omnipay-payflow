@@ -2,6 +2,7 @@
 
 namespace Omnipay\Payflow;
 
+use Omnipay\Common\ParametersTrait;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 class Check
