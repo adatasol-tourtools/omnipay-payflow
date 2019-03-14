@@ -2,6 +2,8 @@
 
 namespace Omnipay\Payflow\Exception;
 
+use Omnipay\Common\Exception\OmnipayException;
+
 /**
  * Invalid Credit Card Exception
  *

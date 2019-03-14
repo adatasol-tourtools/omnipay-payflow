@@ -3,6 +3,7 @@
 namespace Omnipay\Payflow\Message;
 
 use Omnipay\Common\Message\AbstractRequest;
+use Omnipay\Payflow\Check;
 
 /**
  * Payflow Authorize Request
@@ -54,7 +55,7 @@ class AuthorizeRequest extends AbstractRequest
     protected $testEndpoint = 'https://pilot-payflowpro.paypal.com';
     protected $action = 'A';
     
-     public function initialize(array $parameters = array())
+    public function initialize(array $parameters = array())
     {
         parent::initialize(array_merge(['tender'=>'C'], $parameters));
         return $this;
@@ -224,10 +225,14 @@ class AuthorizeRequest extends AbstractRequest
     {
         return $this->getParameter('tender');
     }
-
+    
     public function setTender($value)
     {
-        return $this->setParameter('tender', $value);
+        if ($this->getCard() == null){
+           $this->setParameter('tender', 'A');
+        } else {
+           $this->setParameter('tender', 'C');
+        }  
     }
     
     
@@ -278,13 +283,18 @@ class AuthorizeRequest extends AbstractRequest
     {
         $this->validate('amount');
         $data = $this->getBaseData();
-
+        
+       // var_dump($this->getTender());
+        //var_dump($this->getCheck());
+       // var_dump($this->getCard());
+       // exit;
+        
         if ($this->getCardReference()) {
             $data['ORIGID'] = $this->getCardReference();
             if ($this->getCard()) {
                 $data['CVV2'] = $this->getCard()->getCvv();
             }
-        } elseif($this->getTender()== 'C') {
+        } elseif($this->getTender()=== 'C') {
             $this->validate('card');
             $this->getCard()->validate();
 

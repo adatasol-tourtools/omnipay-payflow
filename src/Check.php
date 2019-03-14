@@ -2,13 +2,12 @@
 
 namespace Omnipay\Payflow;
 
-use Omnipay\Common\ParametersTrait;
+use Omnipay\Common\Helper;
+use Omnipay\Payflow\Exception\InvalidCheckException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 class Check
-{
-    use ParametersTrait;
-    
+{   
     public function __construct($parameters = null)
     {
         $this->initialize($parameters);
@@ -25,8 +24,42 @@ class Check
     public function initialize(array $parameters = null)
     {
         $this->parameters = new ParameterBag;
-
+        
         Helper::initialize($this, $parameters);
+
+        return $this;
+    }
+    
+    /**
+     * Get all parameters.
+     *
+     * @return array An associative array of parameters.
+     */
+    public function getParameters()
+    {
+        return $this->parameters->all();
+    }
+
+    /**
+     * Get one parameter.
+     *
+     * @return mixed A single parameter value.
+     */
+    protected function getParameter($key)
+    {
+        return $this->parameters->get($key);
+    }
+
+    /**
+     * Set one parameter.
+     *
+     * @param string $key Parameter key
+     * @param mixed $value Parameter value
+     * @return $this
+     */
+    protected function setParameter($key, $value)
+    {
+        $this->parameters->set($key, $value);
 
         return $this;
     }
@@ -39,7 +72,7 @@ class Check
             'account_type' => 'account type',
             'name' => 'name',
         );
-
+        
         foreach ($requiredParameters as $key => $val) {
             if (!$this->getParameter($key)) {
                 throw new InvalidCheckException("The $val is required");
